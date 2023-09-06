@@ -1,5 +1,33 @@
 from pdfplumber.page import Page
 
+def crop_several(page: Page, i: int) -> Page:
+    match i:
+        case 0:
+            return crop_seguro(page)
+        
+        case 1:
+            return crop_dep(page)
+
+        case 2:
+            return crop_nome(page)
+
+        case 3:
+            return crop_regfunc(page)
+        
+        case 4:
+            return crop_idade(page)
+        
+        case 5:
+            return crop_parentesco(page)
+        
+        case 6:
+            return crop_plano(page)
+        
+        case 7:
+            return crop_mov(page)
+        
+        case 8:
+            return crop_situacao(page)
 
 def crop_left_side(page: Page) -> Page:
     return page.within_bbox((0, 130, 690, 595))  # X0, Y0, X1, Y1

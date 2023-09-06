@@ -7,17 +7,20 @@ import vars
 
 
 def format_sheets(wb: Workbook) -> None:
-    blue = Color('00002060')
-    white = Color('00FFFFFF')
-    black = Color('00000000')
+    blue = Color('FF002060')
+    white = Color('FFFFFFFF')
+    black = Color('FF000000')
     side = Side(color = black, style = 'thin')
     borders = Border(side, side, side, side)
-    blue_fill = PatternFill(start_color = blue, end_color = blue, fill_type = 'solid')
+    blue_fill = PatternFill(start_color = blue, end_color = blue, fill_type = 'solid')  # Não sei por que bgcolor não funciona aqui.
     header_font = Font(color = white, bold = True)
 
     ws = wb['Informação extraída']
     ws.sheet_view.showGridLines = False
     for i in range(1, ws.max_column + 1):
+        if get_column_letter(i) in (DEP, REG, SIT, COQ, COV, EXQ, EXV, PRQ, PRV, ):    # Oculta essas colunas
+            ws.column_dimensions[f'{get_column_letter(i)}'].hidden = True
+
         ws[f'{get_column_letter(i)}1'].fill = blue_fill
         ws[f'{get_column_letter(i)}1'].font = header_font
         ws[f'{get_column_letter(i)}1'].border = borders
@@ -35,8 +38,6 @@ def format_sheets(wb: Workbook) -> None:
             ws[f'{TDE}{j}'].number_format = nformat
             ws[f'{PRR}{j}'].number_format = nformat
             ws[f'{get_column_letter(i)}{j}'].border = borders
-    for col in (DEP, REG, SIT, COQ, COV, EXQ, EXV, PRQ, PRV, ):  # Oculta essas colunas
-        ws.column_dimensions[f'{col}'].hidden = True
     
     ws = wb['Quantidades e valores']
     ws.sheet_view.showGridLines = False
@@ -46,13 +47,15 @@ def format_sheets(wb: Workbook) -> None:
         ws[f'{get_column_letter(i)}1'].border = borders
 
         for j in range(2, 7):
-            ws[f'{get_column_letter(i)}{j}'].border = borders
             if i == 1: 
                 ws[f'{get_column_letter(i)}{j}'].fill = blue_fill
                 ws[f'{get_column_letter(i)}{j}'].font = header_font
+
+            ws[f'{get_column_letter(i)}{j}'].border = borders
             ws[f'C{j}'].number_format = nformat
             ws[f'E{j}'].number_format = nformat
             ws[f'G{j}'].number_format = nformat
+    
     ws[f'I3'].number_format = nformat
     ws[f'J3'].number_format = nformat
     ws[f'I3'].border = borders
@@ -76,30 +79,35 @@ def format_sheets(wb: Workbook) -> None:
         ws[f'{get_column_letter(i)}1'].border = borders
 
         for j in range(2, 7):
-            ws[f'{get_column_letter(i)}{j}'].border = borders
             if i == 1:
                 ws[f'{get_column_letter(i)}{j}'].fill = blue_fill
                 ws[f'{get_column_letter(i)}{j}'].font = header_font
+
             else: 
                 ws[f'{get_column_letter(i)}{j}'].number_format = nformat
 
+            ws[f'{get_column_letter(i)}{j}'].border = borders
+            
     ws = wb['Totalizador']
     ws.sheet_view.showGridLines = False
     for i in range(1, 3):
         if i != 2:
             ws[f'{get_column_letter(i)}1'].fill = blue_fill
             ws[f'{get_column_letter(i)}1'].font = header_font
+
         else:
             ws[f'{get_column_letter(i)}1'].number_format = nformat
 
         ws[f'{get_column_letter(i)}1'].border = borders
         for j in range(2, 9):
-            ws[f'{get_column_letter(i)}{j}'].border = borders
             if i == 1: 
                 ws[f'{get_column_letter(i)}{j}'].fill = blue_fill
                 ws[f'{get_column_letter(i)}{j}'].font = header_font
+
             else: 
                 ws[f'{get_column_letter(i)}{j}'].number_format = nformat
+            
+            ws[f'{get_column_letter(i)}{j}'].border = borders
 
     ws = wb['Detalhamento']
     ws.sheet_view.showGridLines = False
@@ -109,12 +117,15 @@ def format_sheets(wb: Workbook) -> None:
         ws[f'{get_column_letter(i)}1'].border = borders
 
         for j in range(2, ws.max_row):
-            ws[f'{get_column_letter(i)}{j}'].border = borders
             if i == 1: 
                 ws[f'{get_column_letter(i)}{j}'].fill = blue_fill
                 ws[f'{get_column_letter(i)}{j}'].font = header_font
+
             elif i != 2: 
                 ws[f'{get_column_letter(i)}{j}'].number_format = nformat
+            
+            ws[f'{get_column_letter(i)}{j}'].border = borders
+
     ws[f'E{ws.max_row}'].number_format = nformat
     ws[f'F{ws.max_row}'].number_format = nformat
     ws[f'E{ws.max_row}'].border = borders
@@ -123,13 +134,14 @@ def format_sheets(wb: Workbook) -> None:
 def check_values(wb: Workbook) -> None:
     red = Color('00FF0000')
     green = Color('00008000')
-    wrong = PatternFill(start_color = red, end_color = red, fill_type = 'solid')
-    right = PatternFill(start_color = green, end_color = green, fill_type = 'solid')
+    wrong = PatternFill(bgColor = red, fill_type = 'solid')
+    right = PatternFill(bgColor = green, fill_type = 'solid')
 
     ws = wb['Quantidades e valores']
     for key in vars.qev.keys():
         ws.conditional_formatting.add(key, CellIsRule(operator = 'equal', formula = [vars.qev[key]], fill = right))
         ws.conditional_formatting.add(key, CellIsRule(operator = 'notEqual', formula = [vars.qev[key]], fill = wrong))
+
     ws.conditional_formatting.add('I3', CellIsRule(operator = 'equal', formula = [vars.qev['C4']], fill = right))
     ws.conditional_formatting.add('I3', CellIsRule(operator = 'notEqual', formula = [vars.qev['C4']], fill = wrong))
     ws.conditional_formatting.add('J3', CellIsRule(operator = 'equal', formula = [vars.qev['E4']], fill = right))
@@ -140,6 +152,7 @@ def check_values(wb: Workbook) -> None:
         if '4' not in key:
             ws.conditional_formatting.add(key, CellIsRule(operator = 'equal', formula = [vars.premio[key]], fill = right))
             ws.conditional_formatting.add(key, CellIsRule(operator = 'notEqual', formula = [vars.premio[key]], fill = wrong))
+
         else:
             ws.conditional_formatting.add(key, CellIsRule(operator = 'equal', formula = [-vars.premio[key]], fill = right))
             ws.conditional_formatting.add(key, CellIsRule(operator = 'notEqual', formula = [-vars.premio[key]], fill = wrong))

@@ -1,16 +1,17 @@
-from multiprocessing.managers import Namespace
+from os import cpu_count
 
 
-sub = ''
-sub_has_changed = False
+max_threads = min(32, cpu_count() + 4)
+main_threads = 4
+
 nformat = 'R$* #,##0.00;-R$* #,##0.00;-;'
+sub_has_changed = False
+sub = ''
 
 qev = ''
 premio = ''
 total = ''
 detalhe = ''
-shared = Namespace()
-shared.dfs = []
 
 # Para caso mude
 SUB = 'A'  # Subestipulante

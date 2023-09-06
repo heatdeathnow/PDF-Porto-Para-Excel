@@ -4,14 +4,16 @@ from vars import *
 
 
 def add_cols_extracted(ws: Worksheet) -> None:
+    ws.auto_filter.ref = f'A1:{get_column_letter(ws.max_column)}{ws.max_row}'
+
     ws[f'{COP}1'] = 'Coparticipação'
     ws[f'{TDE}1'] = 'TOTAL DO DEP.'
     ws[f'{PRR}1'] = 'Prêmio Real'
+
     for i in range(2, ws.max_row + 1):
         ws[f'{COP}{i}'] = f'=ROUND(${COV}{i} + ${EXV}{i} + ${PRV}{i}, 2)'
         ws[f'{TDE}{i}'] = f'=ROUND(${PRE}{i} + ${RAV}{i} - ${DES}{i} - {BON}{i} - {ACE}{i} + ${IOF}{i} + ${COP}{i}, 2)'
         ws[f'{PRR}{i}'] = f'=ROUND(${PRE}{i} - {BON}{i} - {ACE}{i} + ${IOF}{i}, 2)'
-    ws.auto_filter.ref = f'A1:{get_column_letter(ws.max_column)}{ws.max_row}'
 
 def add_cols_qe_valor(ws: Worksheet, m: int) -> None:
     ws['A2'] = 'Inclusões'
@@ -127,6 +129,7 @@ def add_totalizador(ws: Worksheet, m: int) -> None:
 def add_detalhamento(ws: Worksheet, base: Worksheet) -> None:
     m = base.max_row
     planos = []
+    
     for cell in base.iter_rows(min_row = 2):
         if cell[7].value not in planos:
             planos.append(cell[7].value)
